@@ -26,7 +26,7 @@ jobs:
 
     - name: Executar testes com pytest
       run: |
-        pytest || echo "⚠️ Testes falharam!"
+        PYTHONPATH=. pytest || echo "⚠️ Testes falharam!"
 
     - name: SAST com Bandit
       run: |
