@@ -33,7 +33,7 @@ jobs:
     - name: Executar testes com pytest
       run: |
         cd $GITHUB_WORKSPACE
-        PYTHONPATH=$GITHUB_WORKSPACE pytest || echo "⚠️ Testes falharam!"
+        python -m pytest tests || echo "⚠️ Testes falharam!"
 
     - name: SAST com Bandit
       run: |
