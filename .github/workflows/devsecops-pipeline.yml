@@ -2,7 +2,7 @@ name: DevSecOps Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev", "test" ]
   pull_request:
     branches: [ "main" ]
 
@@ -11,34 +11,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
 
-    - name: Checkout do código
-      uses: actions/checkout@v3
+      - name: 🗂️ Verificar ambiente
+        run: |
+          echo "PYTHONPATH=$PYTHONPATH"
+          ls -R
 
-    - name: 📂 Verificar ambiente
-      run: |
-         echo "PYTHONPATH=$PYTHONPATH"
-         ls -R
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov flake8 detect-secrets
 
-    - name: Instalar dependências
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: ✅ Executar testes com cobertura
+        run: |
+          cd $GITHUB_WORKSPACE
+          python -m pytest --cov=calculator --cov-report=term-missing tests/ || echo "⚠️ Testes falharam!"
 
-    - name: Executar testes com pytest
-      run: |
-        cd $GITHUB_WORKSPACE
-        python -m pytest tests || echo "⚠️ Testes falharam!"
+      - name: 🧪 Gerar relatório HTML de cobertura
+        run: |
+          python -m pytest --cov=calculator --cov-report=html
+          mv htmlcov cobertura_html
 
-    - name: SAST com Bandit
-      run: |
-        bandit -r app/ || echo "⚠️ Vulnerabilidades no código detectadas!"
+      - name: 📦 Salvar artefato de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-html
+          path: cobertura_html
 
-    - name: Verificar vulnerabilidades em dependências
-      run: |
-        pip-audit || echo "⚠️ Vulnerabilidades em dependências!"
+      - name: 🧹 Lint com flake8
+        run: |
+          flake8 app/ tests/ || echo "⚠️ Código não segue padrão PEP8!"
+
+      - name: 🛡️ SAST com Bandit
+        run: |
+          bandit -r app/ || echo "⚠️ Vulnerabilidades no código detectadas!"
+
+      - name: 🔐 Verificar vulnerabilidades em dependências
+        run: |
+          pip-audit || echo "⚠️ Vulnerabilidades em dependências!"
+
+      - name: 🔍 Scan por segredos com detect-secrets
+        run: |
+          detect-secrets scan > .secrets.baseline || echo "⚠️ Possíveis segredos detectados!"
