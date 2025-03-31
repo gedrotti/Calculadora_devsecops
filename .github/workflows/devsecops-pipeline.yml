@@ -32,7 +32,8 @@ jobs:
 
     - name: Executar testes com pytest
       run: |
-        PYTHONPATH=. pytest || echo "⚠️ Testes falharam!"
+        cd $GITHUB_WORKSPACE
+        PYTHONPATH=$GITHUB_WORKSPACE pytest || echo "⚠️ Testes falharam!"
 
     - name: SAST com Bandit
       run: |
