@@ -33,11 +33,11 @@ jobs:
       - name: ✅ Executar testes com cobertura
         run: |
           cd $GITHUB_WORKSPACE
-          python -m pytest --cov=calculator --cov-report=term-missing tests/ || echo "⚠️ Testes falharam!"
+          python -m pytest --cov=app.calculator --cov-report=term-missing tests/ || echo "⚠️ Testes falharam!"
 
       - name: 🧪 Gerar relatório HTML de cobertura
         run: |
-          python -m pytest --cov=calculator --cov-report=html
+          python -m pytest --cov=app.calculator --cov-report=html
           mv htmlcov cobertura_html
 
       - name: 📦 Salvar artefato de cobertura
