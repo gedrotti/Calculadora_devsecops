@@ -11,8 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
     - name: Checkout do código
       uses: actions/checkout@v3
+
+    - name: 📂 Verificar ambiente
+      run: |
+         echo "PYTHONPATH=$PYTHONPATH"
+         ls -R
 
     - name: Setup Python
       uses: actions/setup-python@v4
